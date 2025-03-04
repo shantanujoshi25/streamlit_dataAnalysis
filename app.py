@@ -24,9 +24,19 @@ st.markdown("Traffic accident analysis for the City of San Jose")
 # Function to authenticate and create BigQuery client
 def get_bigquery_client():
     try:
-        # Create BigQuery client - use default authentication
-        client = bigquery.Client(project='datamining-assign')
-        return client
+        # Use the secrets from Streamlit
+        if "gcp_service_account" in st.secrets:
+            credentials = service_account.Credentials.from_service_account_info(
+                st.secrets["gcp_service_account"]
+            )
+            client = bigquery.Client(
+                project='datamining-assign',
+                credentials=credentials
+            )
+            return client
+        else:
+            st.error("GCP credentials not found in secrets.")
+            return None
     except Exception as e:
         st.error(f"Authentication error: {e}")
         return None
